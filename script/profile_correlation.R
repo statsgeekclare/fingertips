@@ -61,7 +61,7 @@ graph_cors <- hp_cor %>%
   filter(abs(r) > 0.7) %>%
   graph_from_data_frame(directed = FALSE)
 
-ggraph(graph_cors, layout = "igraph", algorithm = "nicely") +
+corrmap <- ggraph(graph_cors, layout = "igraph", algorithm = "nicely") +
   geom_edge_link(aes(edge_alpha = abs(r), color = r, label = round(r,2)), label_size = 2) +
   guides(edge_alpha = "none", edge_width = "none") +
   scale_edge_colour_gradientn(limits = c(-1, 1), colors = c("firebrick2", "dodgerblue2")) +
@@ -70,3 +70,4 @@ ggraph(graph_cors, layout = "igraph", algorithm = "nicely") +
   geom_node_text(aes(label = str_wrap(substring(name, 1, 70), 30), size = ifelse(nchar(name) > 40, 1.5, 2)), repel = TRUE) +
   theme_graph() +
   labs(title = paste("Correlation map of ", profile_name$ProfileName, "profile"))
+ggsave('output/corrmap.jpg', plot = corrmap, width = 10, height = 8, dpi = 300, units = c("in"), device = "jpeg")
