@@ -44,7 +44,7 @@ hp_data1 <- hp_data %>%
   select(-c(IndicatorName, Sex, Age, TimeperiodSortable)) %>%
   distinct() %>%
   spread(index, Value) %>%
-  mutate_if(is.numeric, list(~ impute(., mean), scale))
+  mutate_if(is.numeric, ~scale(impute(.x, mean)))
 
 #Create correlation network map - the code should do the following
 ##Calculates the correlation matrix between all variables
