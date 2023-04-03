@@ -21,6 +21,9 @@ profile_name <- filter(profiles, ProfileID == 26) %>% select(ProfileName) %>% di
 hp_data <- fingertips_data(ProfileID = 26, AreaTypeID = "All")
 unique(hp_data$IndicatorName)
 
+#lists the variables
+str(hp_data)
+
 #Normalise the data - the code should do the following
 ##converts factor (categorical) variables to character variables
 ##filters the most recent data for each indicator
@@ -32,7 +35,7 @@ unique(hp_data$IndicatorName)
 
 hp_data1 <- hp_data %>%
   mutate_if(is.factor, as.character) %>%
-  filter(str_detect(CategoryType, "^$"), AreaType == "Counties & UAs (from Apr 2021)") %>%
+  filter(CategoryType == "", AreaType == "Counties & UAs (from Apr 2021)") %>%
   select(IndicatorName, AreaName, Age, Sex, TimeperiodSortable, Value) %>%
   group_by(IndicatorName, Sex) %>%
   filter(TimeperiodSortable == max(TimeperiodSortable)) %>%
