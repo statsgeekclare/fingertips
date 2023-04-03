@@ -25,12 +25,12 @@ unique(hp_data$IndicatorName)
 hp_data1 <- hp_data %>%
   mutate_if(is.factor, as.character) %>%
   filter(str_detect(CategoryType, "^$"), AreaType == "Counties & UAs (from Apr 2021)") %>%
-  select(IndicatorName, AreaName, Age, Sex, Timeperiod, Value) %>%
+  select(IndicatorName, AreaName, Age, Sex, TimeperiodSortable, Value) %>%
   group_by(IndicatorName, Sex) %>%
-  filter(Timeperiod == max(Timeperiod)) %>%
-  mutate(index = paste(Sex, "-", Age, "-", Timeperiod, "-", IndicatorName)) %>%
+  filter(TimeperiodSortable == max(TimeperiodSortable)) %>%
+  mutate(index = paste(Sex, "-", Age, "-", TimeperiodSortable, "-", IndicatorName)) %>%
   ungroup() %>%
-  select(-c(IndicatorName, Sex, Age, Timeperiod)) %>%
+  select(-c(IndicatorName, Sex, Age, TimeperiodSortable)) %>%
   distinct() %>%
   spread(index, Value) %>%
   mutate_if(is.numeric, list(~ impute(., mean), scale))
