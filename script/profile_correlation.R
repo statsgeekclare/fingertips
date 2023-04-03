@@ -45,26 +45,23 @@ unique(hp_data$IndicatorName)
 ## also the clean_names bit didn't work either so I commented that bit out
 ## and the timeperiod bit isn't returning anything - I can see it is trying to use just the most recent data but it doesn't appear to be working
 
-library(janitor)
 hp_data1 <- hp_data %>%
   mutate_if(is.factor, as.character) %>%
-  filter(CategoryType == "", AreaType == "Counties & UAs (from Apr 2021)" ) %>%
-  #janitor::clean_names() %>%
+  filter(str_detect(CategoryType, "^$"), AreaType == "Counties & UAs (from Apr 2021)") %>%
   select(IndicatorName, AreaName, Age, Sex, Timeperiod, Value) %>%
   group_by(IndicatorName, Sex) %>%
   filter(Timeperiod == max(Timeperiod)) %>%
-  mutate(index = paste(Sex, "-",Age , "-",Timeperiod, "-", IndicatorName) ) %>%
+  mutate(index = paste(Sex, "-", Age, "-", Timeperiod, "-", IndicatorName)) %>%
   ungroup() %>%
   select(-c(IndicatorName, Sex, Age, Timeperiod)) %>%
   distinct() %>%
   spread(index, Value) %>%
-  #janitor::clean_names() %>%
-  mutate_if(is.numeric, funs(impute(., mean))) %>%
-  mutate_if(is.numeric, funs(scale(.))) 
+  mutate_if(is.numeric, list(~ impute(., mean), scale))
 
-#Create correlation network map
-#This code:
-#  
+
+#Createde:
+#   correlation network map
+#This co
 #Calculates the correlation matrix between all variables
 #Extracts well correlated variables (r > 0.7)
 #Converts this to graph (network) format
@@ -74,11 +71,15 @@ hp_data1 <- hp_data %>%
 hp_cor <- hp_data1 %>%
   select(3:ncol(.)) %>%
   correlate() %>%
-  stretch() 
+  stretch()
 
-graph_cors <- hp_cor %>% 
-  filter(abs(r) > 0.7) %>% 
+
+
+graph_cors <- hp_cor %>%
+  filter(abs(r) > 0.7) %>%
   graph_from_data_frame(directed = FALSE)
+
+
 
 ggraph(graph_cors, layout = "igraph", algorithm = "nicely") +
   geom_edge_link(aes(edge_alpha = abs(r), color = r, label = round(r,2)), label_size = 2) +
@@ -86,6 +87,6 @@ ggraph(graph_cors, layout = "igraph", algorithm = "nicely") +
   scale_edge_colour_gradientn(limits = c(-1, 1), colors = c("firebrick2", "dodgerblue2")) +
   geom_node_point(color = "black", size = 3) +
   geom_node_point() +
-  geom_node_text(aes(label = str_wrap(substring(name, 1,70), 30)), size  = 2, repel = TRUE) +
+  geom_node_text(aes(label = str_wrap(substring(name, 1, 70), 30), size = ifelse(nchar(name) > 40, 1.5, 2)), repel = TRUE) +
   theme_graph() +
   labs(title = paste("Correlation map of ", profile_name$ProfileName, "profile"))
