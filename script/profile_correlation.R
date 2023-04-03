@@ -6,10 +6,10 @@ library(corrr) ## calcuate correlation matrices
 library(ggraph) ## plot as network charts
 library(igraph, warn.conflicts = FALSE) ## network tools
 
-#hopefully use this setting to stop the proxy servers blocking the API
+#use this setting to stop the proxy servers blocking the API
 Sys.setenv(no_proxy="*")
 
-#This bit reads in the profiles
+#Read in the profiles
 
 profiles <- profiles()
 profiles %>% select(ProfileID, ProfileName) %>% distinct() %>%
@@ -21,7 +21,15 @@ profile_name <- filter(profiles, ProfileID == 26) %>% select(ProfileName) %>% di
 hp_data <- fingertips_data(ProfileID = 26, AreaTypeID = "All")
 unique(hp_data$IndicatorName)
 
-#Normalise the data
+#Normalise the data - the code should do the following
+##converts factor (categorical) variables to character variables
+##filters the most recent data for each indicator
+##creates a unique index for each indicator (indicator+age+sex+period)
+##converts a long format table to a cross tab
+##removes duplicates
+##fills missing data with mean values
+##scales (normalises) the dataset (i.e. calculates z-scores for each variable)
+
 hp_data1 <- hp_data %>%
   mutate_if(is.factor, as.character) %>%
   filter(str_detect(CategoryType, "^$"), AreaType == "Counties & UAs (from Apr 2021)") %>%
@@ -35,7 +43,12 @@ hp_data1 <- hp_data %>%
   spread(index, Value) %>%
   mutate_if(is.numeric, list(~ impute(., mean), scale))
 
-#Create correlation network map
+#Create correlation network map - the code should do the following
+##Calculates the correlation matrix between all variables
+##Extracts well correlated variables (r > 0.7)
+##Converts this to graph (network) format
+##Plots the correlations as a network map
+
 hp_cor <- hp_data1 %>%
   select(3:ncol(.)) %>%
   correlate() %>%
