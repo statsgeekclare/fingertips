@@ -35,7 +35,7 @@ str(hp_data)
 
 hp_data1 <- hp_data %>%
   mutate_if(is.factor, as.character) %>%
-  filter(CategoryType == "", AreaType == "Counties & UAs (from Apr 2021)") %>%
+  filter(is.na(CategoryType), AreaType == "Counties & UAs (from Apr 2021)") %>%
   select(IndicatorName, AreaName, Age, Sex, TimeperiodSortable, Value) %>%
   group_by(IndicatorName, Sex) %>%
   filter(TimeperiodSortable == max(TimeperiodSortable)) %>%
